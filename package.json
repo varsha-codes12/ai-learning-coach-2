@@ -4,7 +4,6 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "fs": "^0.0.1-security",
     "multer": "^2.1.1",
     "openai": "^6.39.0",
     "pdf-parse-fixed": "^1.1.1"
