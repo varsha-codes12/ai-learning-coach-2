@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Saved Notes</title>
+
+<style>
+
+body{
+
+    font-family:Segoe UI;
+
+    background:linear-gradient(135deg, #A7C7E7, #CDB4DB, #FFD6C9);;
+
+    padding:20px;
+}
+
+.card{
+
+    background:white;
+
+    padding:20px;
+
+    margin-bottom:15px;
+
+    border-radius:15px;
+
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+}
+
+button{
+
+    border:none;
+
+    padding:10px 15px;
+
+    border-radius:10px;
+
+    cursor:pointer;
+}
+
+.open-btn{
+
+    background:black;
+
+    color:white;
+}
+
+.delete-btn{
+
+    background:red;
+
+    color:white;
+
+    margin-left:10px;
+}
+
+.top-btn{
+
+    margin-top:20px;
+
+    background:black;
+
+    color:white;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>📘 My Summary Notes</h1>
+
+<div id="notesList"></div>
+
+<button class="top-btn"
+onclick="goDashboard()">
+
+⬅ Back 
+
+</button>
+
+<script>
+
+async function loadNotes(){
+
+    let username =
+        localStorage.getItem("currentUser");
+
+    let res = await fetch(
+        "/get-saved-notes",
+        {
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+                username
+            })
+        }
+    );
+
+    let data = await res.json();
+
+    let div =
+        document.getElementById("notesList");
+
+    div.innerHTML = "";
+
+    if(!data.notes.length){
+
+        div.innerHTML =
+            "<h3>No saved notes</h3>";
+
+        return;
+    }
+
+    data.notes.forEach(note => {
+
+        div.innerHTML += `
+
+        <div class="card">
+
+            <h3>${note.title}</h3>
+
+            <div>
+
+                <button class="open-btn"
+                onclick="openNote(${note.id})">
+
+                    Open
+
+                </button>
+
+                <button class="delete-btn"
+                onclick="deleteNote(${note.id})">
+
+                    Delete
+
+                </button>
+
+            </div>
+
+        </div>
+        `;
+    });
+}
+
+async function openNote(id){
+
+    let username =
+        localStorage.getItem("currentUser");
+
+    let res = await fetch(
+        "/open-note",
+        {
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+                username,
+                id
+            })
+        }
+    );
+
+    let data = await res.json();
+
+    localStorage.setItem(
+        "summaryNotes",
+        data.content
+    );
+
+    window.location.href =
+        "summary.html";
+}
+
+async function deleteNote(id){
+
+    let username =
+        localStorage.getItem("currentUser");
+
+    await fetch(
+        "/delete-note",
+        {
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+                username,
+                id
+            })
+        }
+    );
+
+    loadNotes();
+}
+
+function goDashboard(){
+
+    window.location.href =
+        "index.html";
+}
+
+loadNotes();
+
+</script>
+
+</body>
+
+</html>

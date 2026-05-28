@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Learning Coach</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+body{
+  background: linear-gradient(135deg, #A7C7E7, #CDB4DB, #FFD6C9);
+  box-shadow: inset 0 0 120px rgba(0,0,0,0.35);
+  min-height:100vh;
+}
+
+/* TOP BAR */
+.topbar{
+  height:65px;
+  background:#111;
+  color:white;
+  display:flex;
+  align-items:center;
+  padding:0 15px;
+  gap:15px;
+}
+
+.menu{
+  font-size:26px;
+  cursor:pointer;
+}
+
+.title{
+  font-size:20px;
+  font-weight:600;
+  letter-spacing:0.5px;
+}
+
+/* WELCOME */
+.welcome{
+  padding:15px;
+  font-size:30px;
+  font-weight:600;
+  text-align:center;
+}
+
+/* SIDEBAR */
+.sidebar{
+  position:fixed;
+  top:65px;
+  left:-260px;
+  width:260px;
+  height:100%;
+  background:#1e1e1e;
+  color:white;
+  padding:20px;
+  transition:0.3s;
+}
+
+.sidebar.active{
+  left:0;
+}
+
+.side-item{
+  padding:12px;
+  margin:18px 0;
+  background:#2c2c2c;
+  border-radius:8px;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.side-item:hover{
+  background:#444;
+}
+
+/* DASHBOARD */
+.container{
+  padding:0px 20px 20px 20px;
+}
+
+/* CARDS */
+.card{
+  background:white;
+  padding:30px 20px;
+  margin:20px auto;
+  border-radius:20px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.18);
+  font-size:25px;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.2s;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  width:1000px;
+  max-width:90%
+}
+
+.card:hover{
+  transform:scale(1.02);
+}
+
+.small{
+  font-size:15px;
+  font-weight:400;
+  color:gray;
+}
+
+/* AUTH */
+.auth{
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  font-size:20px;
+  transform:scale(1.4);
+}
+
+.box{
+  background:white;
+  padding:25px;
+  width:320px;
+  border-radius:12px;
+  box-shadow:0 10px 20px rgba(0,0,0,0.2);
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  font-size:15px;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  background:#111;
+  color:white;
+  border:none;
+  cursor:pointer;
+  font-size:15px;
+  border-radius:15px;
+}
+
+.toggle{
+  margin-top:10px;
+  cursor:pointer;
+  color:blue;
+}
+.spinner{
+    width:70px;
+    height:70px;
+    border:8px solid #fff;
+    border-top:8px solid yellow;
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+    100%{
+        transform:rotate(360deg);
+    }
+}
+#notes{
+    margin-top:20px;
+    line-height:1.8;
+    color:#333;
+}
+
+#notes h1{
+    font-size:36px;
+    margin-bottom:25px;
+    color:#222;
+}
+
+#notes h2{
+    margin-top:30px;
+    margin-bottom:15px;
+    color:#6c63ff;
+    font-size:28px;
+}
+
+#notes p{
+    font-size:18px;
+    margin-bottom:15px;
+}
+
+#notes ul{
+    margin-left:25px;
+    margin-bottom:20px;
+}
+
+#notes li{
+    margin-bottom:10px;
+    font-size:18px;
+}
+.caption{
+    text-align:center;
+    margin-top:20px;
+    font-size:25px;
+    font-weight:600;
+    color:#222;
+    text-shadow:0 0 15px rgba(0,0,0,0.25);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- AUTH -->
+<div class="auth" id="auth" style="display:flex;">
+  <div class="box">
+    <h2 id="modeText">Login</h2>
+
+    <input id="user" placeholder="Username">
+    <input id="pass" type="password" placeholder="Password">
+
+    <button onclick="auth()">Continue</button>
+
+    <div class="toggle" onclick="toggleMode()">
+      Switch Login / Register
+    </div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+
+    <!-- NEW WORKSPACE CREATION -->
+    <div class="side-item">
+        ➕ New Workspace
+        <input id="wsName" placeholder="Workspace name"
+            style="width:100%;margin-top:8px;padding:6px;border-radius:6px;border:none;">
+        <button onclick="createWS()"
+            style="margin-top:8px;width:100%;padding:6px;background:#444;color:white;border:none;border-radius:6px;">
+            Create
+        </button>
+    </div>
+
+    <!-- MY WORKSPACES LIST -->
+    <div class="side-item">
+        📂 My Workspaces
+        <div id="wsList"
+            style="margin-top:10px;font-size:14px;max-height:150px;overflow:auto;">
+        </div>
+    </div>
+
+    <div class="side-item" 
+    onclick="openSavedTimetables()">
+      🗓 Saved Timetables
+    </div>
+    <div class="side-item"
+    onclick="openSavedNotes()">
+
+      📘 My Summary Notes
+
+    </div>
+
+    <div class="side-item" onclick="logout()">🚪 Logout</div>
+
+</div>
+  
+<!-- DASHBOARD -->
+<div id="dashboard" style="display:none;">
+
+    <div class="topbar">
+        <div class="menu" onclick="toggleSidebar()">☰</div>
+        <div class="title">AI Learning Coach</div>
+    </div>
+
+    <div class="welcome" id="welcome">Welcome 👋</div>
+
+    <div class="container">
+
+        <div class="card">
+            📄 Upload PDF
+
+            <input type="file" id="pdfFile" style="margin-top:10px font-size-15px;">
+
+            <button onclick="uploadPDF()"
+                style="margin-top:10px;background:black;color:white;padding:10px;border:none;width:100%;border-radius:20px;">
+                Upload to Workspace
+            </button>
+        </div>   
+    
+        <div class="card" onclick="openTimetable()">📅 Create Time Table <div class="small">Smart study planner</div></div>
+
+        <div class="card" onclick="generateQuiz()">
+          🧠 Generate Quiz
+          <div class="small">AI creates MCQs from your uploaded PDFs</div>
+        </div>
+
+        <div class="card" onclick="generateSummary()">
+          🤖 AI Summary Notes
+          <div class="small">
+            Auto revision notes
+          </div>
+
+        </div>
+        <div class="caption">
+          Learn • Improve • Repeat 
+        </div>
+        
+        <div id="quizBox"></div>
+
+    </div>
+</div>
+
+<script>
+let quizData = [];
+let selectedAnswers = {};  
+let mode = "login";
+
+function toggleMode(){
+  mode = mode === "login" ? "register" : "login";
+  document.getElementById("modeText").innerText = mode;
+}
+
+function toggleSidebar(){
+  document.getElementById("sidebar").classList.toggle("active");
+}
+
+function auth(){
+    let u = document.getElementById("user").value;
+
+    if(!u){
+        alert("Enter username");
+        return;
+    }
+
+    localStorage.setItem("currentUser", u); // IMPORTANT FIX
+    sessionStorage.setItem("loggedIn","true");
+    document.getElementById("auth").style.display="none";
+    document.getElementById("dashboard").style.display="block";
+
+    document.getElementById("welcome").innerText =
+    "Welcome " + u + " 👋";
+
+    renderWorkspaces(); // IMPORTANT
+}
+
+function logout(){
+
+    // remove sessions
+    sessionStorage.removeItem("loggedIn");
+
+    localStorage.removeItem("currentUser");
+
+    localStorage.removeItem("activeWorkspace");
+
+    // instantly switch UI
+    document.getElementById("dashboard").style.display = "none";
+
+    document.getElementById("auth").style.display = "flex";
+
+    // clear input boxes
+    document.getElementById("user").value = "";
+
+    document.getElementById("pass").value = "";
+
+    // optional refresh
+    location.reload();
+}
+async function createWS() {
+    let ws = document.getElementById("wsName").value;
+    let user = localStorage.getItem("currentUser");
+
+    if (!ws) return alert("Enter workspace name");
+
+    let res = await fetch("/create-workspace", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            username: user,
+            workspace: ws
+        })
+    });
+
+    let data = await res.json();
+
+    if (data.success) {
+        alert("Workspace created ✔");
+
+        document.getElementById("wsName").value = "";
+
+    // IMPORTANT FIX:
+        localStorage.setItem("activeWorkspace", ws);
+
+        renderWorkspaces();   // refresh UI immediately
+    } else {
+        alert(data.message);
+    }
+}
+
+async function renderWorkspaces() {
+  let user = localStorage.getItem("currentUser");
+
+  let res = await fetch(`/get-workspaces?username=${user}`);
+  let data = await res.json();
+
+  let wsList = document.getElementById("wsList");
+  wsList.innerHTML = "";
+
+  if (!data.workspaces || Object.keys(data.workspaces).length === 0) {
+    wsList.innerHTML = "No workspaces";
+    return;
+  }
+
+  Object.keys(data.workspaces).forEach(ws => {
+
+    let div = document.createElement("div");
+    div.style.display = "flex";
+    div.style.justifyContent = "space-between";
+    div.style.padding = "5px";
+
+    let name = document.createElement("span");
+    name.innerHTML = "📁 " + ws;
+
+    name.onclick = () => {
+      localStorage.setItem("activeWorkspace", ws);
+      alert("Selected: " + ws);
+    };
+
+    let del = document.createElement("span");
+    del.innerHTML = "❌";
+    del.style.cursor = "pointer";
+
+    del.onclick = async () => {
+      let r = await fetch("/delete-workspace", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: user,
+          workspace: ws
+        })
+      });
+
+      let d = await r.json();
+
+      if (d.success) {
+        if (localStorage.getItem("activeWorkspace") === ws) {
+          localStorage.removeItem("activeWorkspace");
+        }
+        renderWorkspaces();
+      }
+    };
+
+    div.appendChild(name);
+    div.appendChild(del);
+    wsList.appendChild(div);
+  });
+}
+async function uploadPDF() {
+    let file = document.getElementById("pdfFile").files[0];
+
+    let user = localStorage.getItem("currentUser");
+    let workspace = localStorage.getItem("activeWorkspace");
+
+    if (!workspace) {
+        alert("Please select a workspace first");
+        return;
+    }
+
+    if (!file) {
+        alert("Select a PDF file");
+        return;
+    }
+
+    let formData = new FormData();
+    formData.append("pdf", file);
+    formData.append("username", user);
+    formData.append("workspace", workspace);
+
+    let res = await fetch("/upload-pdf", {
+        method: "POST",
+        body: formData
+    });
+
+    let data = await res.json();
+
+    if (data.success) {
+        alert("PDF uploaded ✔ into " + workspace);
+    } else {
+        alert(data.message);
+    }
+}
+
+
+
+function renderQuiz() {
+  let box = document.getElementById("quizBox");
+  box.innerHTML = "";
+
+  quizData.forEach((q, i) => {
+
+    let div = document.createElement("div");
+    div.style = "background:white;padding:15px;margin:10px;border-radius:10px;";
+
+    let html = `<h3>Q${i+1}. ${q.question}</h3>`;
+
+    q.options.forEach(opt => {
+      html += `
+        <div id="q${i}_$(opt}"
+        onclick="selectAnswer(${i}, '${opt}')"
+        style="padding:8px;margin:5px;border:1px solid #ccc;cursor:pointer;border-radius:6px;">
+          ${opt}
+        </div>
+      `;
+    });
+
+    div.innerHTML = html;
+    box.appendChild(div);
+  });
+
+  let btn = document.createElement("button");
+  btn.innerText = "Submit Quiz";
+  btn.style = `
+    margin:20px;
+    padding:10px;
+    width:200px;
+    background:black;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+  `;
+
+  btn.onclick = evaluateQuiz;
+  box.appendChild(btn);
+}
+function selectAnswer(qIndex, answer) {
+  selectedAnswers[qIndex] = answer;
+}
+function evaluateQuiz() {
+  let score = 0;
+
+  quizData.forEach((q, i) => {
+
+    let selected = selectedAnswers[i];
+
+    q.options.forEach(opt => {
+      let el = document.getElementById(`q${i}_${opt}`);
+
+      if (!el) return;
+
+      // correct answer
+      if (opt === q.answer) {
+        el.style.background = "rgba(0, 255, 0, 0.2)";
+        el.style.border = "2px solid green";
+      }
+
+      // wrong selected answer
+      if (selected === opt && opt !== q.answer) {
+        el.style.background = "rgba(255, 0, 0, 0.2)";
+        el.style.border = "2px solid red";
+      }
+    });
+
+    if (selected === q.answer) {
+      score++;
+    }
+  });
+
+  // FINAL SCORE UI
+  let box = document.getElementById("quizBox");
+
+  let result = document.createElement("div");
+  result.style = `
+    margin:20px;
+    padding:20px;
+    background:#111;
+    color:white;
+    font-size:20px;
+    border-radius:10px;
+    text-align:center;
+  `;
+
+  result.innerHTML = `🎯 Score: ${score} / ${quizData.length}`;
+
+  box.appendChild(result);
+}
+async function generateQuiz() {
+
+  let username = localStorage.getItem("currentUser");
+
+  let workspace = localStorage.getItem("activeWorkspace");
+
+  if(!workspace){
+
+    alert("Please select workspace");
+
+    return;
+  }
+  document.getElementById("loader").style.display = "flex";
+  let res = await fetch("/generate-quiz-from-workspace", {
+
+    method:"POST",
+
+    headers:{
+      "Content-Type":"application/json"
+    },
+
+    body: JSON.stringify({
+      username,
+      workspace
+    })
+  });
+
+  let data = await res.json();
+
+  if(data.success){
+
+    localStorage.setItem(
+      "quizData",
+      JSON.stringify(data.quiz)
+    );
+
+    window.location.href = "quiz.html";
+
+  }else{
+
+    alert(data.message);
+  }
+}
+async function generateSummary(){
+    localStorage.removeItem("summaryNotes");
+    let username =
+        localStorage.getItem("currentUser");
+
+    let workspace =
+        localStorage.getItem("activeWorkspace");
+
+    if(!workspace){
+
+        alert("Please select workspace");
+
+        return;
+    }
+
+    document.getElementById("summaryLoader").style.display =
+        "flex";
+
+    let res = await fetch("/generate-summary", {
+
+        method: "POST",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body: JSON.stringify({
+            username,
+            workspace
+        })
+    });
+
+    let data = await res.json();
+
+    document.getElementById("summaryLoader").style.display =
+        "none";
+
+    if(data.success){
+
+        localStorage.setItem(
+            "summaryNotes",
+            data.notes
+        );
+
+        window.location.href =
+            "summary.html";
+
+    }else{
+
+        alert(data.message);
+    }
+}
+function openSavedNotes(){
+
+    window.location.href =
+        "saved-notes.html";
+}
+function openSavedTimetables(){
+
+    window.location.href =
+    "saved-timetables.html";
+}
+if(sessionStorage.getItem("loggedIn") === "true"){
+
+    let user =
+        localStorage.getItem("currentUser");
+
+    document.getElementById("auth").style.display =
+        "none";
+
+    document.getElementById("dashboard").style.display =
+        "block";
+
+    document.getElementById("welcome").innerText =
+        "Welcome " + user + " 👋";
+
+    renderWorkspaces();
+
+    let loader =
+        document.getElementById("loader");
+
+    if(loader){
+
+        loader.style.display = "none";
+    }
+}
+function openTimetable(){
+
+    window.location.href =
+    "timetable.html";
+}
+</script>
+<div id="loader" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+z-index:999;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+color:white;
+font-size:22px;
+">
+
+    <div class="spinner"></div>
+
+    <p style="margin-top:20px;">
+        AI is generating your quiz...
+    </p>
+
+</div>
+<div id="summaryLoader" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+z-index:999;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+color:white;
+font-size:22px;
+">
+
+    <div class="spinner"></div>
+
+    <h2>
+        AI is generating summary notes...
+    </h2>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>AI Summary Notes</title>
+
+<style>
+
+body{
+    font-family:Segoe UI;
+    background:linear-gradient(135deg, #A7C7E7, #CDB4DB, #FFD6C9);;
+    padding:20px;
+}
+
+.container{
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:20px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+h1{
+    margin-bottom:20px;
+}
+
+button{
+
+    padding:12px 20px;
+
+    border:none;
+
+    background:#111;
+
+    color:white;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    margin-top:20px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🤖 AI Summary Notes</h1>
+
+    <div id="notes"></div>
+
+    <button onclick="goDashboard()">
+
+        ⬅ Back
+
+    </button>
+
+</div>
+
+<script>
+
+document.getElementById("notes").innerHTML =
+
+    localStorage.getItem("summaryNotes");
+
+function goDashboard(){
+
+    window.location.href = "index.html";
+}
+
+</script>
+
+</body>
+
+</html>
