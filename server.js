@@ -12,10 +12,18 @@ app.use(express.json());
 app.use(express.static(__dirname));
 
 const USERS_FILE = "./users.json";
+if (!fs.existsSync(USERS_FILE)) {
+  fs.writeFileSync(USERS_FILE, "{}");
+}
 
 // helper
 function getUsers() {
-  return JSON.parse(fs.readFileSync(USERS_FILE));
+  try {
+    if (!fs.existsSync(USERS_FILE)) return {};
+    return JSON.parse(fs.readFileSync(USERS_FILE, "utf8") || "{}");
+  } catch (e) {
+    return {};
+  }
 }
 
 function saveUsers(users) {

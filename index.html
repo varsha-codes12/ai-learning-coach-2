@@ -329,23 +329,43 @@ function toggleSidebar(){
   document.getElementById("sidebar").classList.toggle("active");
 }
 
-function auth(){
+async function auth(){
     let u = document.getElementById("user").value;
+    let p = document.getElementById("pass").value;
 
-    if(!u){
-        alert("Enter username");
+    if(!u || !p){
+        alert("Enter username & password");
         return;
     }
 
-    localStorage.setItem("currentUser", u); // IMPORTANT FIX
+    let url = mode === "login" ? "/login" : "/register";
+
+    let res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            username: u,
+            password: p
+        })
+    });
+
+    let data = await res.json();
+
+    if(!data.success){
+        alert(data.message);
+        return;
+    }
+
+    localStorage.setItem("currentUser", u);
     sessionStorage.setItem("loggedIn","true");
+
     document.getElementById("auth").style.display="none";
     document.getElementById("dashboard").style.display="block";
 
     document.getElementById("welcome").innerText =
-    "Welcome " + u + " 👋";
+        "Welcome " + u + " 👋";
 
-    renderWorkspaces(); // IMPORTANT
+    renderWorkspaces();
 }
 
 function logout(){
